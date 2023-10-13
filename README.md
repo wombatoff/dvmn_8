@@ -32,3 +32,13 @@ $ docker-compose run web ./manage.py createsuperuser
 `ALLOWED_HOSTS` -- настройка Django со списком разрешённых адресов. Если запрос прилетит на другой адрес, то сайт ответит ошибкой 400. Можно перечислить несколько адресов через запятую, например `127.0.0.1,192.168.0.1,site.test`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#allowed-hosts).
 
 `DATABASE_URL` -- адрес для подключения к базе данных PostgreSQL. Другие СУБД сайт не поддерживает. [Формат записи](https://github.com/jacobian/dj-database-url#url-schema).
+
+
+
+
+
+kubectl exec -it django-app-7f8d77fc4-rcg6g -- env
+
+kubectl exec -it django-app-8df86664d-lpjkm -- /bin/bash
+
+minikube addons enable ingress

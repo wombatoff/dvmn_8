@@ -1,0 +1,87 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-app-config
+data:
+  DATABASE_URL: "postgresql://username:password@db-hostname:5432/dbname" 
+  SECRET_KEY: "your_secret_key_here" 
+  DEBUG: "False"
+  ALLOWED_HOSTS: "127.0.0.1,localhost,star-burger.test"
+...
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: django-app
+  template:
+    metadata:
+      labels:
+        app: django-app
+    spec:
+      containers:
+        - name: django-app
+          image: wombatoff/django-app
+          ports:
+            - containerPort: 80
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: django-app-config
+                  key: DATABASE_URL
+            - name: SECRET_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: django-app-config
+                  key: SECRET_KEY
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: django-app-config
+                  key: DEBUG
+            - name: ALLOWED_HOSTS
+              valueFrom:
+                configMapKeyRef:
+                  name: django-app-config
+                  key: ALLOWED_HOSTS
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-service
+spec:
+  type: NodePort
+  selector:
+    app: django-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+...
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: django-ingress
+spec:
+  rules:
+  - host: "star-burger.test"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/admin"
+        backend:
+          service:
+            name: django-service
+            port:
+              number: 80
+...
