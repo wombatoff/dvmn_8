@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
         - name: django-app
-          image: wombatoff/django-app
+          image: wombatoff/django-app:latest
           command: ["python", "manage.py", "migrate"]
           env:
             - name: DATABASE_URL

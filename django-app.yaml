@@ -4,11 +4,38 @@ kind: ConfigMap
 metadata:
   name: django-app-config
 data:
-  DATABASE_URL: "postgresql://username:password@db-hostname:5432/dbname" 
+  DATABASE_URL: "postgresql://postgres:jIfz7CpD4n@my-postgres-postgresql.default.svc.cluster.local:5432/postgres" 
   SECRET_KEY: "your_secret_key_here" 
   DEBUG: "False"
   ALLOWED_HOSTS: "127.0.0.1,localhost,star-burger.test"
 ...
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: django-static-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+...
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: django-media-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi 
+...
+
 
 ---
 apiVersion: apps/v1
@@ -27,7 +54,7 @@ spec:
     spec:
       containers:
         - name: django-app
-          image: wombatoff/django-app
+          image: wombatoff/django-app:latest
           ports:
             - containerPort: 80
           env:
@@ -51,6 +78,19 @@ spec:
                 configMapKeyRef:
                   name: django-app-config
                   key: ALLOWED_HOSTS
+          volumeMounts:
+            - name: static-volume
+              mountPath: /code/static
+            - name: media-volume
+              mountPath: /code/media
+      volumes:
+        - name: static-volume
+          persistentVolumeClaim:
+            claimName: django-static-pvc
+        - name: media-volume
+          persistentVolumeClaim:
+            claimName: django-media-pvc
+...
 
 ---
 apiVersion: v1

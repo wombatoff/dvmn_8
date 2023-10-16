@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
           - name: django
-            image: wombatoff/django-app
+            image: wombatoff/django-app:latest
             command: ["python", "manage.py", "clearsessions"]
             env:
             - name: DATABASE_URL
