@@ -12,7 +12,7 @@
                     "uri": "/static/*"
                 },
                 "action": {
-                    "share": "/"
+                    "share": "/code/static/"
                 }
             },
             {
@@ -20,7 +20,7 @@
                     "uri": "/media/*"
                 },
                 "action": {
-                    "share": "/"
+                    "share": "/code/media/"
                 }
             },
             {
@@ -30,13 +30,13 @@
             }
         ]
     },
-    "applications":{
-       "app": {
-            "type":"python 3.9",
-            "path":"/code/",
-            "module":"project.wsgi",
+    "applications": {
+        "app": {
+            "type": "python 3.9",
+            "path": "/code/",
+            "module": "project.wsgi",
             "environment": {
-                "DJANGO_SETTINGS_MODULE": "project.settings",
+                "DJANGO_SETTINGS_MODULE": "project.settings"
             }
         }
     }

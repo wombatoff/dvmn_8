@@ -5,40 +5,58 @@
 Внутри конейнера Django запускается с помощью Nginx Unit, не путать с Nginx. Сервер Nginx Unit выполняет сразу две функции: как веб-сервер он раздаёт файлы статики и медиа, а в роли сервера-приложений он запускает Python и Django. Таким образом Nginx Unit заменяет собой связку из двух сервисов Nginx и Gunicorn/uWSGI. [Подробнее про Nginx Unit](https://unit.nginx.org/).
 
 ## Как запустить dev-версию
-
-Запустите базу данных и сайт:
-
+В папке проекта cоздать файл .env и заполнить его:
+```
+POSTGRES_DB=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+```
+Разверните БД Postgres в Doker:
 ```shell-session
-$ docker-compose up
+ docker-compose up -d --build
 ```
 
-В новом терминале не выключая сайт запустите команды для настройки базы данных:
-
+Запустите Minikube:
 ```shell-session
-$ docker-compose run web ./manage.py migrate  # создаём/обновляем таблицы в БД
-$ docker-compose run web ./manage.py createsuperuser
+minikube start
 ```
-
-Для тонкой настройки Docker Compose используйте переменные окружения. Их названия отличаются от тех, что задаёт docker-образа, сделано это чтобы избежать конфликта имён. Внутри docker-compose.yaml настраиваются сразу несколько образов, у каждого свои переменные окружения, и поэтому их названия могут случайно пересечься. Чтобы не было конфликтов к названиям переменных окружения добавлены префиксы по названию сервиса. Список доступных переменных можно найти внутри файла [`docker-compose.yml`](./docker-compose.yml).
-
-## Переменные окружения
-
-Образ с Django считывает настройки из переменных окружения:
-
-`SECRET_KEY` -- обязательная секретная настройка Django. Это соль для генерации хэшей. Значение может быть любым, важно лишь, чтобы оно никому не было известно. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#secret-key).
-
-`DEBUG` -- настройка Django для включения отладочного режима. Принимает значения `TRUE` или `FALSE`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-DEBUG).
-
-`ALLOWED_HOSTS` -- настройка Django со списком разрешённых адресов. Если запрос прилетит на другой адрес, то сайт ответит ошибкой 400. Можно перечислить несколько адресов через запятую, например `127.0.0.1,192.168.0.1,site.test`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#allowed-hosts).
-
-`DATABASE_URL` -- адрес для подключения к базе данных PostgreSQL. Другие СУБД сайт не поддерживает. [Формат записи](https://github.com/jacobian/dj-database-url#url-schema).
-
-
-
-
-
-kubectl exec -it django-app-7f8d77fc4-rcg6g -- env
-
-kubectl exec -it django-app-8df86664d-lpjkm -- /bin/bash
-
+Включает аддон ingress в вашем кластере Minikube
+```shell-session
 minikube addons enable ingress
+```
+В файле [`django-app.yaml`](./django-app.yaml) заполните переменные окружения:
+```
+data:
+  DATABASE_URL: "postgresql://username:password@db-hostname:5433/dbname"
+  SECRET_KEY: "your_secret_key_here"
+```
+Запустите манифест [`django-app.yaml`](./django-app.yaml)
+```shell-session
+kubectl apply -f django-app.yaml
+```
+#### При первом запуске проекта сделайте миграции и создайте суперпользователя:
+Посмотрите имя подов приложения:
+```shell-session
+kubectl get pods
+```
+Подключитесь к любому из подов:
+```shell-session
+kubectl exec -it <имя-пода> -- /bin/bash
+```
+Запустите миграции:
+```shell-session
+python manage.py migrate
+```
+Создайте суперпользователя:
+```shell-session
+python manage.py createsuperuser
+```
+Узнайте  IP-адреса узла:
+```
+minikube ip
+```
+
+Внесите IP-адреса узла в файл hosts на вашей машине:
+```
+<ip-адреса узла> star-burger.test
+```

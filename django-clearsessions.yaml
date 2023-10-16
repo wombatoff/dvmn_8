@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: clear-django-sessions-cron
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: django
+            image: wombatoff/django-app
+            command: ["python", "manage.py", "clearsessions"]
+            env:
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: django-app-config
+                  key: DATABASE_URL
+            - name: SECRET_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: django-app-config
+                  key: SECRET_KEY
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: django-app-config
+                  key: DEBUG
+            - name: ALLOWED_HOSTS
+              valueFrom:
+                configMapKeyRef:
+                  name: django-app-config
+                  key: ALLOWED_HOSTS
+          restartPolicy: OnFailure
