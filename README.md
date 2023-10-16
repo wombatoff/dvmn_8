@@ -22,6 +22,9 @@ kubectl get secret --namespace default my-postgres-postgresql -o jsonpath="{.dat
 ```
 Впишите пароль в файл [`django-app.yaml`](./django-app.yaml) в переменную `DATABASE_URL`
 
+Заполните переменную SECRET_KEY: в [`django-app.yaml`](./django-app.yaml)
+
+
 
 Включите аддон ingress в вашем кластере Minikube
 ```shell-session
