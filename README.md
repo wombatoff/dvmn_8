@@ -23,7 +23,7 @@ kubectl get secret --namespace default my-postgres-postgresql -o jsonpath="{.dat
 Впишите пароль в файл [`django-app.yaml`](./django-app.yaml) в переменную `DATABASE_URL`
 
 
-Включает аддон ingress в вашем кластере Minikube
+Включите аддон ingress в вашем кластере Minikube
 ```shell-session
 minikube addons enable ingress
 ```
